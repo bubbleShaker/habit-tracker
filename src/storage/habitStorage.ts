@@ -14,7 +14,12 @@ export async function loadHabits(): Promise<Habit[]> {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed as Habit[];
+    // 後方互換: completedDates を持たない旧データは空配列で補う。
+    // これで古い保存データを読んでもアプリが落ちない。
+    return parsed.map((h) => ({
+      ...h,
+      completedDates: Array.isArray(h?.completedDates) ? h.completedDates : [],
+    })) as Habit[];
   } catch {
     return [];
   }
