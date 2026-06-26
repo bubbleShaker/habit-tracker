@@ -11,7 +11,8 @@ import { useHabits } from "../hooks/useHabits";
 
 export default function Index() {
   // 状態ロジックはフックに隔離。UIは入力値だけ自前で持つ。
-  const { habits, addHabit, toggleToday, isCompletedToday } = useHabits();
+  const { habits, addHabit, toggleToday, isCompletedToday, streakOf } =
+    useHabits();
   const [input, setInput] = useState("");
 
   const onAdd = () => {
@@ -46,6 +47,7 @@ export default function Index() {
         }
         renderItem={({ item }) => {
           const done = isCompletedToday(item);
+          const streak = streakOf(item);
           return (
             <Pressable style={styles.row} onPress={() => toggleToday(item.id)}>
               {/* 丸チェック: 完了で塗りつぶし＋中に ✓ */}
@@ -55,6 +57,10 @@ export default function Index() {
               <Text style={[styles.rowText, done && styles.rowTextDone]}>
                 {item.name}
               </Text>
+              {/* 連続日数バッジ: 0 のときは出さない */}
+              {streak > 0 && (
+                <Text style={styles.streak}>🔥 {streak}日</Text>
+              )}
             </Pressable>
           );
         }}
@@ -133,10 +139,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   rowText: {
+    flex: 1, // 名前を伸ばし、ストリークバッジを右端へ押しやる
     fontSize: 17,
   },
   rowTextDone: {
     textDecorationLine: "line-through",
     color: "#aaa",
+  },
+  streak: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#E8742C",
   },
 });
