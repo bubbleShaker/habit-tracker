@@ -17,6 +17,7 @@ export default function Index() {
     toggleToday,
     isCompletedToday,
     streakOf,
+    longestStreakOf,
     removeHabit,
   } = useHabits();
   const [input, setInput] = useState("");
@@ -54,19 +55,29 @@ export default function Index() {
         renderItem={({ item }) => {
           const done = isCompletedToday(item);
           const streak = streakOf(item);
+          const longest = longestStreakOf(item);
           return (
             <Pressable style={styles.row} onPress={() => toggleToday(item.id)}>
               {/* 丸チェック: 完了で塗りつぶし＋中に ✓ */}
               <View style={[styles.check, done && styles.checkDone]}>
                 {done && <Text style={styles.checkMark}>✓</Text>}
               </View>
-              <Text style={[styles.rowText, done && styles.rowTextDone]}>
-                {item.name}
-              </Text>
-              {/* 連続日数バッジ: 0 のときは出さない */}
-              {streak > 0 && (
-                <Text style={styles.streak}>🔥 {streak}日</Text>
-              )}
+              {/* 名前とメタ情報を縦に積む。flex:1 で右の削除ボタンを端へ寄せる */}
+              <View style={styles.rowMain}>
+                <Text style={[styles.rowText, done && styles.rowTextDone]}>
+                  {item.name}
+                </Text>
+                {(streak > 0 || longest > 0) && (
+                  <View style={styles.metaRow}>
+                    {streak > 0 && (
+                      <Text style={styles.streak}>🔥 {streak}日</Text>
+                    )}
+                    {longest > 0 && (
+                      <Text style={styles.longest}>🏆 最長{longest}日</Text>
+                    )}
+                  </View>
+                )}
+              </View>
               {/* 削除ボタン。行トグルと衝突しないよう独立した Pressable にする */}
               <Pressable
                 style={styles.deleteButton}
@@ -152,18 +163,30 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
   },
+  rowMain: {
+    flex: 1, // 名前列を伸ばし、右の削除ボタンを端へ押しやる
+    gap: 2,
+  },
   rowText: {
-    flex: 1, // 名前を伸ばし、ストリークバッジを右端へ押しやる
     fontSize: 17,
   },
   rowTextDone: {
     textDecorationLine: "line-through",
     color: "#aaa",
   },
+  metaRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
   streak: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
     color: "#E8742C",
+  },
+  longest: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#C9A227",
   },
   deleteButton: {
     width: 28,

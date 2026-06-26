@@ -2,6 +2,7 @@ import { Habit } from "../types/habit";
 import {
   currentStreak,
   isCompletedOn,
+  longestStreak,
   previousDateKey,
   toDateKey,
   todayKey,
@@ -127,5 +128,46 @@ describe("currentStreak", () => {
       completedDates: ["2026-02-28", "2026-03-01"],
     };
     expect(currentStreak(h, "2026-03-01")).toBe(2);
+  });
+});
+
+describe("longestStreak", () => {
+  it("完了日が無ければ 0", () => {
+    expect(longestStreak(base)).toBe(0);
+  });
+
+  it("単発なら 1", () => {
+    expect(longestStreak({ ...base, completedDates: ["2026-06-10"] })).toBe(1);
+  });
+
+  it("複数区間のうち最長を返す", () => {
+    // 2連続 と 3連続 → 3
+    const h = {
+      ...base,
+      completedDates: [
+        "2026-06-01",
+        "2026-06-02",
+        "2026-06-10",
+        "2026-06-11",
+        "2026-06-12",
+      ],
+    };
+    expect(longestStreak(h)).toBe(3);
+  });
+
+  it("順不同・重複があっても正しく数える", () => {
+    const h = {
+      ...base,
+      completedDates: ["2026-06-12", "2026-06-10", "2026-06-11", "2026-06-10"],
+    };
+    expect(longestStreak(h)).toBe(3);
+  });
+
+  it("月をまたぐ連続も数える", () => {
+    const h = {
+      ...base,
+      completedDates: ["2026-01-30", "2026-01-31", "2026-02-01"],
+    };
+    expect(longestStreak(h)).toBe(3);
   });
 });
