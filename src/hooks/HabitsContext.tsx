@@ -32,6 +32,7 @@ type HabitsApi = {
   longestStreakOf: (habit: Habit) => number;
   recentHistory: (habit: Habit, n?: number) => boolean[];
   isDoneOn: (habit: Habit, dateKey: string) => boolean;
+  renameHabit: (id: string, name: string) => void;
   removeHabit: (id: string) => void;
 };
 
@@ -111,6 +112,15 @@ function useHabitsState(): HabitsApi {
     []
   );
 
+  // 習慣の名前を変更する。空文字や空白のみは無視する（追加時と同じ方針）。
+  const renameHabit = useCallback((id: string, name: string) => {
+    const trimmed = name.trim();
+    if (trimmed.length === 0) return;
+    setHabits((prev) =>
+      prev.map((h) => (h.id === id ? { ...h, name: trimmed } : h))
+    );
+  }, []);
+
   // 習慣を削除する。
   const removeHabit = useCallback((id: string) => {
     setHabits((prev) => prev.filter((h) => h.id !== id));
@@ -128,6 +138,7 @@ function useHabitsState(): HabitsApi {
       longestStreakOf,
       recentHistory,
       isDoneOn,
+      renameHabit,
       removeHabit,
     }),
     [
@@ -140,6 +151,7 @@ function useHabitsState(): HabitsApi {
       longestStreakOf,
       recentHistory,
       isDoneOn,
+      renameHabit,
       removeHabit,
     ]
   );

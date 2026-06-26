@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useLocalSearchParams, Stack } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useHabits } from "../../hooks/useHabits";
 import { monthMatrix, shiftMonth } from "../../lib/calendar";
 import { todayKey } from "../../lib/completion";
@@ -10,7 +16,7 @@ const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 export default function HabitDetail() {
   // URL の動的セグメント [id] を受け取る。
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { habits, isDoneOn } = useHabits();
+  const { habits, isDoneOn, renameHabit } = useHabits();
   const habit = habits.find((h) => h.id === id);
 
   // 表示中の年月。初期値は今月。
@@ -19,6 +25,9 @@ export default function HabitDetail() {
     year: now.getFullYear(),
     month: now.getMonth() + 1,
   });
+
+  // 名前編集の入力値。null の間は閲覧状態（編集していない）。
+  const [editName, setEditName] = useState<string | null>(null);
 
   // 習慣が見つからない（削除直後など）場合のガード。
   if (!habit) {
@@ -37,6 +46,45 @@ export default function HabitDetail() {
     <View style={styles.container}>
       {/* ヘッダのタイトルを習慣名にする */}
       <Stack.Screen options={{ title: habit.name }} />
+
+      {/* 名前編集セクション。editName が null なら閲覧、文字列なら編集中。 */}
+      {editName === null ? (
+        <View style={styles.nameRow}>
+          <Text style={styles.nameText}>{habit.name}</Text>
+          <Pressable hitSlop={8} onPress={() => setEditName(habit.name)}>
+            <Text style={styles.editLink}>編集</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <View style={styles.editRow}>
+          <TextInput
+            style={styles.nameInput}
+            value={editName}
+            onChangeText={setEditName}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={() => {
+              renameHabit(habit.id, editName);
+              setEditName(null);
+            }}
+          />
+          <Pressable
+            style={[styles.editButton, styles.saveButton]}
+            onPress={() => {
+              renameHabit(habit.id, editName);
+              setEditName(null);
+            }}
+          >
+            <Text style={styles.saveText}>保存</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.editButton, styles.cancelButton]}
+            onPress={() => setEditName(null)}
+          >
+            <Text style={styles.cancelText}>取消</Text>
+          </Pressable>
+        </View>
+      )}
 
       {/* 月送りヘッダ */}
       <View style={styles.monthHeader}>
@@ -104,6 +152,55 @@ const styles = StyleSheet.create({
   missing: {
     fontSize: 16,
     color: "#888",
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  nameText: {
+    fontSize: 22,
+    fontWeight: "700",
+    flex: 1,
+  },
+  editLink: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#208AEF",
+    paddingHorizontal: 8,
+  },
+  editRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  nameInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 17,
+  },
+  editButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+  },
+  saveButton: {
+    backgroundColor: "#208AEF",
+  },
+  saveText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+  cancelButton: {
+    backgroundColor: "#eee",
+  },
+  cancelText: {
+    color: "#333",
+    fontWeight: "700",
   },
   monthHeader: {
     flexDirection: "row",
