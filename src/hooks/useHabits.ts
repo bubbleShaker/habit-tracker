@@ -4,6 +4,7 @@ import { loadHabits, saveHabits } from "../storage/habitStorage";
 import {
   currentStreak,
   isCompletedOn,
+  longestStreak,
   todayKey,
   toggleCompletion,
 } from "../lib/completion";
@@ -66,6 +67,12 @@ export function useHabits() {
     []
   );
 
+  // 全期間を通じての最長連続達成日数。
+  const longestStreakOf = useCallback(
+    (habit: Habit) => longestStreak(habit),
+    []
+  );
+
   // 習慣を削除する。該当 id を除外するだけ。
   // 保存は habits を監視している useEffect が自動で行う。
   const removeHabit = useCallback((id: string) => {
@@ -79,6 +86,7 @@ export function useHabits() {
     toggleToday,
     isCompletedToday,
     streakOf,
+    longestStreakOf,
     removeHabit,
     loaded,
   };

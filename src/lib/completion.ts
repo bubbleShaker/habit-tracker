@@ -61,3 +61,25 @@ export function currentStreak(habit: Habit, todayKey: string): number {
   }
   return streak;
 }
+
+// 全期間を通じての最長連続達成日数を返す。
+// 完了日をソートし、隣り合う日付が「前日→当日」で連続している間は区間を伸ばし、
+// 途切れたらリセットする。その過程の最大長を返す。
+export function longestStreak(habit: Habit): number {
+  // 重複除去してソート（"YYYY-MM-DD" は文字列ソート＝日付順になる）。
+  const days = [...new Set(habit.completedDates)].sort();
+  if (days.length === 0) return 0;
+
+  let longest = 1;
+  let run = 1;
+  for (let i = 1; i < days.length; i++) {
+    // 直前の日の翌日が当日なら連続。previousDateKey で「当日の前日」を求めて比較する。
+    if (previousDateKey(days[i]) === days[i - 1]) {
+      run += 1;
+      longest = Math.max(longest, run);
+    } else {
+      run = 1; // 連続が途切れたのでリセット
+    }
+  }
+  return longest;
+}
