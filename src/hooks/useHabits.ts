@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Habit } from "../types/habit";
 import { loadHabits, saveHabits } from "../storage/habitStorage";
 import {
+  currentStreak,
   isCompletedOn,
   todayKey,
   toggleCompletion,
@@ -59,6 +60,12 @@ export function useHabits() {
     []
   );
 
+  // 現在の連続達成日数。日付計算は completion 層に委譲する。
+  const streakOf = useCallback(
+    (habit: Habit) => currentStreak(habit, todayKey()),
+    []
+  );
+
   // loaded も返す。UI 側で「読込中」表示に使える（今回は任意利用）。
-  return { habits, addHabit, toggleToday, isCompletedToday, loaded };
+  return { habits, addHabit, toggleToday, isCompletedToday, streakOf, loaded };
 }
