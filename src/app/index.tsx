@@ -18,6 +18,7 @@ export default function Index() {
     isCompletedToday,
     streakOf,
     longestStreakOf,
+    recentHistory,
     removeHabit,
   } = useHabits();
   const [input, setInput] = useState("");
@@ -56,6 +57,7 @@ export default function Index() {
           const done = isCompletedToday(item);
           const streak = streakOf(item);
           const longest = longestStreakOf(item);
+          const history = recentHistory(item); // 直近7日 古い順
           return (
             <Pressable style={styles.row} onPress={() => toggleToday(item.id)}>
               {/* 丸チェック: 完了で塗りつぶし＋中に ✓ */}
@@ -77,6 +79,15 @@ export default function Index() {
                     )}
                   </View>
                 )}
+                {/* 直近7日の達成ドット（左=6日前 … 右=今日） */}
+                <View style={styles.dotsRow}>
+                  {history.map((d, i) => (
+                    <View
+                      key={i}
+                      style={[styles.dot, d ? styles.dotDone : styles.dotMiss]}
+                    />
+                  ))}
+                </View>
               </View>
               {/* 削除ボタン。行トグルと衝突しないよう独立した Pressable にする */}
               <Pressable
@@ -187,6 +198,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: "#C9A227",
+  },
+  dotsRow: {
+    flexDirection: "row",
+    gap: 5,
+    marginTop: 4,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  dotDone: {
+    backgroundColor: "#208AEF",
+  },
+  dotMiss: {
+    backgroundColor: "#e3e3e3",
   },
   deleteButton: {
     width: 28,

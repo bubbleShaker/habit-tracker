@@ -4,6 +4,7 @@ import { loadHabits, saveHabits } from "../storage/habitStorage";
 import {
   currentStreak,
   isCompletedOn,
+  lastNDays,
   longestStreak,
   todayKey,
   toggleCompletion,
@@ -73,6 +74,14 @@ export function useHabits() {
     []
   );
 
+  // 直近 n 日の達成可否を古い順（左=過去, 右=今日）で返す。
+  // UI は date を知らず、boolean の並びだけ受け取ってドットを描ける。
+  const recentHistory = useCallback(
+    (habit: Habit, n: number = 7): boolean[] =>
+      lastNDays(todayKey(), n).map((d) => isCompletedOn(habit, d)),
+    []
+  );
+
   // 習慣を削除する。該当 id を除外するだけ。
   // 保存は habits を監視している useEffect が自動で行う。
   const removeHabit = useCallback((id: string) => {
@@ -87,6 +96,7 @@ export function useHabits() {
     isCompletedToday,
     streakOf,
     longestStreakOf,
+    recentHistory,
     removeHabit,
     loaded,
   };

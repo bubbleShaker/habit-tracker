@@ -62,6 +62,19 @@ export function currentStreak(habit: Habit, todayKey: string): number {
   return streak;
 }
 
+// 今日を含む直近 n 日分の日付キーを「古い順」で返す。
+// 例: lastNDays("2026-06-26", 3) → ["2026-06-24","2026-06-25","2026-06-26"]
+// 履歴ドットを左=過去・右=今日で並べるために古い順にする。
+export function lastNDays(todayKey: string, n: number): string[] {
+  const days: string[] = [];
+  let cursor = todayKey;
+  for (let i = 0; i < n; i++) {
+    days.push(cursor);
+    cursor = previousDateKey(cursor);
+  }
+  return days.reverse(); // 新→旧 で積んだので反転して古い順にする
+}
+
 // 全期間を通じての最長連続達成日数を返す。
 // 完了日をソートし、隣り合う日付が「前日→当日」で連続している間は区間を伸ばし、
 // 途切れたらリセットする。その過程の最大長を返す。
