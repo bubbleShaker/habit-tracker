@@ -2,6 +2,7 @@ import { Habit } from "../types/habit";
 import {
   currentStreak,
   isCompletedOn,
+  lastNDays,
   longestStreak,
   previousDateKey,
   toDateKey,
@@ -169,5 +170,29 @@ describe("longestStreak", () => {
       completedDates: ["2026-01-30", "2026-01-31", "2026-02-01"],
     };
     expect(longestStreak(h)).toBe(3);
+  });
+});
+
+describe("lastNDays", () => {
+  it("今日を含む古い順で n 日分返す", () => {
+    expect(lastNDays("2026-06-26", 3)).toEqual([
+      "2026-06-24",
+      "2026-06-25",
+      "2026-06-26",
+    ]);
+  });
+
+  it("末尾は必ず今日", () => {
+    const days = lastNDays("2026-06-26", 7);
+    expect(days).toHaveLength(7);
+    expect(days[days.length - 1]).toBe("2026-06-26");
+  });
+
+  it("月をまたいでも連続した日付になる", () => {
+    expect(lastNDays("2026-03-01", 3)).toEqual([
+      "2026-02-27",
+      "2026-02-28",
+      "2026-03-01",
+    ]);
   });
 });
