@@ -11,8 +11,14 @@ import { useHabits } from "../hooks/useHabits";
 
 export default function Index() {
   // 状態ロジックはフックに隔離。UIは入力値だけ自前で持つ。
-  const { habits, addHabit, toggleToday, isCompletedToday, streakOf } =
-    useHabits();
+  const {
+    habits,
+    addHabit,
+    toggleToday,
+    isCompletedToday,
+    streakOf,
+    removeHabit,
+  } = useHabits();
   const [input, setInput] = useState("");
 
   const onAdd = () => {
@@ -61,6 +67,14 @@ export default function Index() {
               {streak > 0 && (
                 <Text style={styles.streak}>🔥 {streak}日</Text>
               )}
+              {/* 削除ボタン。行トグルと衝突しないよう独立した Pressable にする */}
+              <Pressable
+                style={styles.deleteButton}
+                hitSlop={8}
+                onPress={() => removeHabit(item.id)}
+              >
+                <Text style={styles.deleteText}>✕</Text>
+              </Pressable>
             </Pressable>
           );
         }}
@@ -150,5 +164,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: "#E8742C",
+  },
+  deleteButton: {
+    width: 28,
+    height: 28,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteText: {
+    fontSize: 18,
+    color: "#ccc",
   },
 });

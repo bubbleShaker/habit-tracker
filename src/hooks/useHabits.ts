@@ -66,6 +66,20 @@ export function useHabits() {
     []
   );
 
+  // 習慣を削除する。該当 id を除外するだけ。
+  // 保存は habits を監視している useEffect が自動で行う。
+  const removeHabit = useCallback((id: string) => {
+    setHabits((prev) => prev.filter((h) => h.id !== id));
+  }, []);
+
   // loaded も返す。UI 側で「読込中」表示に使える（今回は任意利用）。
-  return { habits, addHabit, toggleToday, isCompletedToday, streakOf, loaded };
+  return {
+    habits,
+    addHabit,
+    toggleToday,
+    isCompletedToday,
+    streakOf,
+    removeHabit,
+    loaded,
+  };
 }
