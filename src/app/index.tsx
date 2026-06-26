@@ -11,7 +11,7 @@ import { useHabits } from "../hooks/useHabits";
 
 export default function Index() {
   // 状態ロジックはフックに隔離。UIは入力値だけ自前で持つ。
-  const { habits, addHabit } = useHabits();
+  const { habits, addHabit, toggleToday, isCompletedToday } = useHabits();
   const [input, setInput] = useState("");
 
   const onAdd = () => {
@@ -44,11 +44,20 @@ export default function Index() {
         ListEmptyComponent={
           <Text style={styles.empty}>まだ習慣がないのだ。上から追加するのだ。</Text>
         }
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            <Text style={styles.rowText}>{item.name}</Text>
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const done = isCompletedToday(item);
+          return (
+            <Pressable style={styles.row} onPress={() => toggleToday(item.id)}>
+              {/* 丸チェック: 完了で塗りつぶし＋中に ✓ */}
+              <View style={[styles.check, done && styles.checkDone]}>
+                {done && <Text style={styles.checkMark}>✓</Text>}
+              </View>
+              <Text style={[styles.rowText, done && styles.rowTextDone]}>
+                {item.name}
+              </Text>
+            </Pressable>
+          );
+        }}
       />
     </View>
   );
@@ -99,11 +108,35 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
     paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
   },
+  check: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    borderWidth: 2,
+    borderColor: "#208AEF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkDone: {
+    backgroundColor: "#208AEF",
+  },
+  checkMark: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "700",
+  },
   rowText: {
     fontSize: 17,
+  },
+  rowTextDone: {
+    textDecorationLine: "line-through",
+    color: "#aaa",
   },
 });

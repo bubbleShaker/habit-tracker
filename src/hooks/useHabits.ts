@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Habit } from "../types/habit";
 import { loadHabits, saveHabits } from "../storage/habitStorage";
+import {
+  isCompletedOn,
+  todayKey,
+  toggleCompletion,
+} from "../lib/completion";
 
 // 習慣リストの状態ロジックを隔離した custom hook。
 // UI(index.tsx)は「どう保存されるか」を知らない。永続化は storage 層に委譲する。
@@ -34,10 +39,26 @@ export function useHabits() {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: trimmed,
       createdAt: Date.now(),
+      completedDates: [],
     };
     setHabits((prev) => [habit, ...prev]); // 新しいものを先頭に
   }, []);
 
+  // 指定 id の習慣の「今日完了」をトグルする。
+  // 日付の決定は todayKey に、完了判定の付け外しは toggleCompletion に委譲する。
+  const toggleToday = useCallback((id: string) => {
+    const key = todayKey();
+    setHabits((prev) =>
+      prev.map((h) => (h.id === id ? toggleCompletion(h, key) : h))
+    );
+  }, []);
+
+  // UI が日付計算を知らずに「今日やったか」を問い合わせるためのヘルパ。
+  const isCompletedToday = useCallback(
+    (habit: Habit) => isCompletedOn(habit, todayKey()),
+    []
+  );
+
   // loaded も返す。UI 側で「読込中」表示に使える（今回は任意利用）。
-  return { habits, addHabit, loaded };
+  return { habits, addHabit, toggleToday, isCompletedToday, loaded };
 }

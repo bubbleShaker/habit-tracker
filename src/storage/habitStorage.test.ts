@@ -2,7 +2,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Habit } from "../types/habit";
 import { loadHabits, saveHabits } from "./habitStorage";
 
-const sample: Habit = { id: "1", name: "ランニング", createdAt: 1000 };
+const sample: Habit = {
+  id: "1",
+  name: "ランニング",
+  createdAt: 1000,
+  completedDates: ["2026-06-26"],
+};
 
 beforeEach(async () => {
   await AsyncStorage.clear();
@@ -26,5 +31,11 @@ describe("habitStorage", () => {
   it("配列でない値が入っていたら空配列を返す", async () => {
     await AsyncStorage.setItem("habits", JSON.stringify({ not: "array" }));
     expect(await loadHabits()).toEqual([]);
+  });
+
+  it("旧データ(completedDates 無し)は空配列で補って読む（後方互換）", async () => {
+    const legacy = { id: "9", name: "瞑想", createdAt: 500 };
+    await AsyncStorage.setItem("habits", JSON.stringify([legacy]));
+    expect(await loadHabits()).toEqual([{ ...legacy, completedDates: [] }]);
   });
 });
