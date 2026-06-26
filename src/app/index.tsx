@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "expo-router";
 import {
   FlatList,
   Modal,
@@ -23,6 +24,7 @@ export default function Index() {
     recentHistory,
     removeHabit,
   } = useHabits();
+  const router = useRouter();
   const [input, setInput] = useState("");
   // 削除確認の対象。null ならダイアログ非表示。
   const [pendingDelete, setPendingDelete] = useState<Habit | null>(null);
@@ -69,11 +71,20 @@ export default function Index() {
           const longest = longestStreakOf(item);
           const history = recentHistory(item); // 直近7日 古い順
           return (
-            <Pressable style={styles.row} onPress={() => toggleToday(item.id)}>
-              {/* 丸チェック: 完了で塗りつぶし＋中に ✓ */}
-              <View style={[styles.check, done && styles.checkDone]}>
+            <Pressable
+              style={styles.row}
+              onPress={() =>
+                router.push({ pathname: "/habit/[id]", params: { id: item.id } })
+              }
+            >
+              {/* 丸チェック: タップで今日トグル。行の遷移とは独立した Pressable。 */}
+              <Pressable
+                hitSlop={8}
+                onPress={() => toggleToday(item.id)}
+                style={[styles.check, done && styles.checkDone]}
+              >
                 {done && <Text style={styles.checkMark}>✓</Text>}
-              </View>
+              </Pressable>
               {/* 名前とメタ情報を縦に積む。flex:1 で右の削除ボタンを端へ寄せる */}
               <View style={styles.rowMain}>
                 <Text style={[styles.rowText, done && styles.rowTextDone]}>
