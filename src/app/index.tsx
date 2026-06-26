@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   FlatList,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -8,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { useHabits } from "../hooks/useHabits";
+import { Habit } from "../types/habit";
 
 export default function Index() {
   // 状態ロジックはフックに隔離。UIは入力値だけ自前で持つ。
@@ -22,10 +24,18 @@ export default function Index() {
     removeHabit,
   } = useHabits();
   const [input, setInput] = useState("");
+  // 削除確認の対象。null ならダイアログ非表示。
+  const [pendingDelete, setPendingDelete] = useState<Habit | null>(null);
 
   const onAdd = () => {
     addHabit(input);
     setInput("");
+  };
+
+  // 削除を確定する。対象を消してダイアログを閉じる。
+  const confirmDelete = () => {
+    if (pendingDelete) removeHabit(pendingDelete.id);
+    setPendingDelete(null);
   };
 
   return (
@@ -93,7 +103,7 @@ export default function Index() {
               <Pressable
                 style={styles.deleteButton}
                 hitSlop={8}
-                onPress={() => removeHabit(item.id)}
+                onPress={() => setPendingDelete(item)}
               >
                 <Text style={styles.deleteText}>✕</Text>
               </Pressable>
@@ -101,6 +111,39 @@ export default function Index() {
           );
         }}
       />
+
+      {/* 削除確認ダイアログ。pendingDelete があるときだけ表示する。 */}
+      <Modal
+        visible={pendingDelete !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPendingDelete(null)}
+      >
+        {/* 背景の暗幕。タップでキャンセル扱いにする。 */}
+        <Pressable style={styles.backdrop} onPress={() => setPendingDelete(null)}>
+          {/* カード本体。ここをタップしても閉じないよう伝播を遮断する。 */}
+          <Pressable style={styles.dialog} onPress={() => {}}>
+            <Text style={styles.dialogTitle}>習慣を削除する？</Text>
+            <Text style={styles.dialogBody}>
+              「{pendingDelete?.name}」を削除するのだ。元に戻せないのだ。
+            </Text>
+            <View style={styles.dialogButtons}>
+              <Pressable
+                style={[styles.dialogButton, styles.cancelButton]}
+                onPress={() => setPendingDelete(null)}
+              >
+                <Text style={styles.cancelText}>キャンセル</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.dialogButton, styles.confirmButton]}
+                onPress={confirmDelete}
+              >
+                <Text style={styles.confirmText}>削除</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -224,5 +267,53 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 18,
     color: "#ccc",
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+  },
+  dialog: {
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 20,
+    gap: 12,
+  },
+  dialogTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  dialogBody: {
+    fontSize: 15,
+    color: "#555",
+  },
+  dialogButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginTop: 4,
+  },
+  dialogButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+  },
+  cancelButton: {
+    backgroundColor: "#eee",
+  },
+  cancelText: {
+    fontWeight: "700",
+    color: "#333",
+  },
+  confirmButton: {
+    backgroundColor: "#E23B3B",
+  },
+  confirmText: {
+    fontWeight: "700",
+    color: "#fff",
   },
 });
