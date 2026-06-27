@@ -33,6 +33,20 @@ export function readSupabaseEnv(): SupabaseEnv {
   return { url, key };
 }
 
+/**
+ * Supabase の接続設定が揃っているかを真偽で返す（例外を投げない版）。
+ * 起動時の分岐に使う: 未設定なら認証を使わず従来どおりローカルで動かす。
+ * 「設定済みの定義」を readSupabaseEnv に一本化するため、その成否で判定する。
+ */
+export function isSupabaseConfigured(): boolean {
+  try {
+    readSupabaseEnv();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // 遅延 singleton 用のキャッシュ。初回 getSupabase() で生成し、以降は使い回す。
 let client: SupabaseClient | null = null;
 
