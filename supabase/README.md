@@ -18,7 +18,7 @@ erDiagram
     int sort_order
   }
   completions {
-    uuid habit_id PK_FK
+    uuid habit_id PK
     date date_key PK
     uuid user_id FK
   }
