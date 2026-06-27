@@ -3,6 +3,7 @@ import { ActivityIndicator, View } from "react-native";
 import { HabitsProvider } from "../hooks/HabitsContext";
 import { AuthProvider, useAuth } from "../hooks/AuthContext";
 import LoginScreen from "../components/LoginScreen";
+import HeaderSettingsButton from "../components/HeaderSettingsButton";
 
 // 認証状態でアプリ本体／ログイン画面を出し分けるゲート。
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -33,7 +34,14 @@ export default function RootLayout() {
       <AuthGate>
         <HabitsProvider>
           <Stack>
-            <Stack.Screen name="index" options={{ title: "習慣トラッカー" }} />
+            <Stack.Screen
+              name="index"
+              options={{
+                title: "習慣トラッカー",
+                headerRight: () => <HeaderSettingsButton />,
+              }}
+            />
+            <Stack.Screen name="settings" options={{ title: "設定" }} />
           </Stack>
         </HabitsProvider>
       </AuthGate>
