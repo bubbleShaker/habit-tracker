@@ -67,6 +67,20 @@ flowchart TD
 
 > Sign in with Apple とアカウント削除は「無いと審査で落ちる」ため、ビルド基盤(Epic I)より前に設計を始めるのが安全。
 
+## 補足: 自分用の最短路（PWA）— ストアの前に（#49）
+
+「自分の iPhone で使いたい」だけなら、$99 や審査の前に **Web をホーム画面に追加（PWA）**が最短・無料・即日。
+アプリは既に Web で動作するため軽い。
+
+- 手順: `npx expo export -p web` → 静的ホスティング（Vercel/Netlify/EAS Hosting 等）→ Supabase の Redirect URLs に
+  本番 Web URL を追加 → iOS Safari「ホーム画面に追加」。
+- iOS vs Android の「自分用インストール」: **Android は APK をサイドロードで無料・即**。**iOS は無料署名だと7日で失効**
+  （実用には Apple Developer $99/年）。ただし本人が iPhone 使いなら Android ビルドは自分用には使えない
+  → **PWA が一番おいしい**。
+- ストア配布の比較: iOS は $99/年・Sign in with Apple 必須(4.8)。Google Play は $25/1回だが
+  新規個人アカウントはクローズドテスト要件あり（要確認）。
+- 位置づけ: PWA(#49, 自分用) → 必要になれば Epic II→I（ネイティブ iOS）／Android は他人配布時に追加。
+
 ## 出典
 - [App Review Guidelines - Apple Developer](https://developer.apple.com/app-store/review/guidelines/)
 - [Offering account deletion in your app - Apple Developer](https://developer.apple.com/support/offering-account-deletion-in-your-app/)
