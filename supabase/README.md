@@ -18,11 +18,14 @@ erDiagram
     int sort_order
   }
   completions {
-    uuid habit_id PK
+    uuid habit_id PK,FK
     date date_key PK
     uuid user_id FK
   }
 ```
+
+> `users` は Supabase の認証が管理する **`auth.users`**（`auth` スキーマ）。このマイグレーションでは
+> 作成せず `references auth.users(id)` で参照のみ。`habit_id` は主キーの一部かつ `habits` への外部キー（PK,FK）。
 
 - `completions` の主キーは `(habit_id, date_key)`。同じ習慣・同じ日は1行だけ。
 - 「今日やった」のトグルは `completions` の **行 insert / delete** に対応。

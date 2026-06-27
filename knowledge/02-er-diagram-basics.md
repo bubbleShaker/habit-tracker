@@ -33,9 +33,17 @@ completions（やった記録）
 
 ## ③ 外部キー（FK = Foreign Key）
 
-別テーブルの行を指すリンク。
-- `completions.habit_id` の a1 は habits の id=a1（筋トレ）を指す。
-- `user_id` は users（ログインユーザー表）へのリンク。
+別テーブルの行を指すリンク。**1つの列が PK と FK を兼ねることがある**。
+
+completions には FK が2本ある:
+- `habit_id` … habits の id を指す（a1=筋トレ）。**同時に複合主キーの一部**なので図では `PK,FK`。
+- `user_id` … users の id を指す。
+
+### 参照先の users テーブルはどこ？
+`user_id` の参照先は **`auth.users`**（Supabase の認証システムが自動管理するユーザー本体の表。
+メールやログイン方法が入る）。`auth` スキーマにあり、Supabase 所有なので**自分のマイグレーションでは
+作らず `references auth.users(id)` で参照のみ**。だから SQL に `create table users` が無くても成立する。
+（スキーマ = テーブルをまとめるフォルダのようなもの。普段のテーブルは `public` スキーマ）
 
 ## ④ 線と owns / has、記号 ||--o{
 
