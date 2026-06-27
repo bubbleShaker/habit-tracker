@@ -2,6 +2,7 @@
 // UI/フックはこのファイルだけを通して Supabase に触れるので、依存方向は内向きに保てる。
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 // type-only import: 型情報だけ取り込み、実体（重い supabase-js）は実行時までロードしない。
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -75,8 +76,9 @@ export function getSupabase(): SupabaseClient {
       storage: AsyncStorage,
       autoRefreshToken: true,
       persistSession: true,
-      // RN ではリダイレクト URL からのセッション検出は使わない（Web OAuth は別 Issue で対応）。
-      detectSessionInUrl: false,
+      // Web は戻り URL の ?code= を supabase-js に自動検出させる。
+      // ネイティブは自前で openAuthSessionAsync → exchangeCodeForSession するため false。
+      detectSessionInUrl: Platform.OS === "web",
     },
   });
 
