@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Habit } from "../types/habit";
 import { loadHabits, saveHabits } from "../storage/habitStorage";
+import { newId } from "../lib/id";
 import {
   currentStreak,
   isCompletedOn,
@@ -65,7 +66,7 @@ function useHabitsState(): HabitsApi {
     if (trimmed.length === 0) return;
 
     const habit: Habit = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: newId(), // DB(habits.id) が uuid 型なので uuid を採番する
       name: trimmed,
       createdAt: Date.now(),
       completedDates: [],
